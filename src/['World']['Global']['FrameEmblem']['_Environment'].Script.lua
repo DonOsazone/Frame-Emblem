@@ -4,4 +4,3 @@
 --- copyRight © 2021   AvatarConstructors
 Debug.EnableLog("iew")
 
-a=0
