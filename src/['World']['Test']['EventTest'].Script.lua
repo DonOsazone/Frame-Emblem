@@ -4,17 +4,21 @@
 --启动事件测试模块
 if DebugList.Event==nil then return end
 
-local Event = require(Event)
+--local Event = require(Event)
+
+--repeat wait() until Event
+
 
 local event = Event();
 
 function func1(arg)
     print('第一个垃圾代码：'..arg);
 end
+
 function func2()
     local function inlinefunc(arg)
         print('第二个垃圾代码：'..arg);
-     end
+    end
     return inlinefunc
 end
 
