@@ -1,6 +1,8 @@
--- @author Qiao-Ziao
+--- ModuleScript  Pawn
+--- Created by Qiao-Ziao
+--- Latest Editted by Gyss
 
-local m_Pawn = class("m_Pawn")
+local Pawn = class("Pawn")
 
 -- 私有属性表
 local _private = setmetatable({}, {__mode = "k"})
@@ -8,17 +10,17 @@ local _private = setmetatable({}, {__mode = "k"})
 -- 类属性 默认的“移动”和“转面向”时间 默认为1秒
 -- 附上getter和setter 此属性不归正规的Get/Set管理
 local n_change_time = 1
-function m_Pawn:GetChangeTime()
+function Pawn:GetChangeTime()
     return n_change_time
 end
-function m_Pawn:SetChangeTime(v)
+function Pawn:SetChangeTime(v)
     n_change_time = v
 end
 
 --! 构造函数 该函数会创建一个新的Pawn对象，并进行初始化操作
 -- @param o_pawn_render o_pawn_render的值将赋值给o_object_reference
 -- @return void
-function m_Pawn:initialize(o_pawn_render)
+function Pawn:initialize(o_pawn_render)
     --! 成员变量
     --! 公有
     -- @param table 该Pawn具有的所有buff
@@ -27,7 +29,7 @@ function m_Pawn:initialize(o_pawn_render)
     --! 私有
     _private[self] = {
         -- @param number Pawn的生命值
-        n_health = 0,
+        n_health = 1,
         -- @param number Pawn的魔法值
         n_magic = 0,
         -- @param Vector3 Pawn的位置
@@ -54,7 +56,7 @@ end
 -- 获取该Pawn的s_property_name对应的值
 -- @param s_property_name 字符串类型的属性名
 -- @return auto
-function m_Pawn:Get(s_property_name)
+function Pawn:Get(s_property_name)
     if _private[self][s_property_name] then
         return _private[self][s_property_name]
     elseif self[s_property_name] then
@@ -68,7 +70,7 @@ end
 -- @param s_property_name 属性名
 -- @param a_value 属性值
 -- @return void
-function m_Pawn:Set(s_property_name, a_value)
+function Pawn:Set(s_property_name, a_value)
     if _private[self][s_property_name] then
         --! 处理Position和Rotation的变化 默认 n_change_time 秒动画
         if s_property_name == "v3_position" then
@@ -112,7 +114,7 @@ end
 -- @param s_property_name 属性名
 -- @param a_delta 属性值
 -- @return void
-function m_Pawn:Increase(s_property_name, a_delta)
+function Pawn:Increase(s_property_name, a_delta)
     -- 检测类型是否合法，合法后执行赋值
     assert(
         type(self:Get(s_property_name)) == type(a_delta),
@@ -123,8 +125,8 @@ end
 
 -- 克隆函数 会基于自身，复制出一个属性完全一致的Pawn实例并返回
 -- @return Pawn
-function m_Pawn:CloneSelf()
-    local return_obj = m_Pawn:new(self:Get("o_object_reference"):Clone(self:Get("o_object_reference").Parent))
+function Pawn:CloneSelf()
+    local return_obj = Pawn:new(self:Get("o_object_reference"):Clone(self:Get("o_object_reference").Parent))
     return_obj:Set("t_buffs", self:Get("t_buffs"))
     return_obj:Set("n_health", self:Get("n_health"))
     return_obj:Set("n_magic", self:Get("n_magic"))
@@ -139,7 +141,7 @@ end
 -- 克隆函数 静态 会基于p_pawn，复制出一个属性完全一致的Pawn实例并返回
 -- @param p_pawn 当p_pawn的类与Pawn存在继承关系时，复制出的Pawn实例，其类与p_pawn的类相同
 -- @return Pawn
-function m_Pawn.static:Clone(p_pawn)
+function Pawn.static:Clone(p_pawn)
     return p_pawn:CloneSelf()
 end
 
@@ -149,7 +151,7 @@ end
 -- 当t_property为空时，复制全部属性
 -- 当t_property为表时，复制指定属性
 -- @return Pawn
-function m_Pawn:Copy(p_pawn, t_property)
+function Pawn:Copy(p_pawn, t_property)
     if t_property == nil then
         self:Set("t_buffs", p_pawn:Get("t_buffs"))
         self:Set("n_health", p_pawn:Get("n_health"))
@@ -169,7 +171,7 @@ end
 
 -- 测试函数 打印对象的所有属性
 -- @return void
-function m_Pawn:PrintMsg()
+function Pawn:PrintMsg()
     print("————↓↓↓————")
     print("生命值 / n_health : ", self:Get("n_health"))
     print("魔法值 / n_magic : ", self:Get("n_magic"))
@@ -200,15 +202,15 @@ end
 
 --! 事件/被动触发
 -- 死亡事件，死亡时触发
-function m_Pawn:E_OnDead()
+function Pawn:E_OnDead()
 end
 
 -- 创造事件，当角色被创造时触发
-function m_Pawn:E_OnCreate()
+function Pawn:E_OnCreate()
 end
 
 -- 移动事件，角色移动时触发
-function m_Pawn:E_OnMove(v3_origin_position, v3_target_position)
+function Pawn:E_OnMove(v3_origin_position, v3_target_position)
 end
 
 --! 事件/外部主动触发
@@ -217,22 +219,22 @@ end
 -- @param v3_origin_position 起始位置
 -- @param v3_target_position 目标位置
 -- @return void
-function m_Pawn:Move(v3_origin_position, v3_target_position)
+function Pawn:Move(v3_origin_position, v3_target_position)
     --! 建议此处使用Set修改位置
 end
 
 -- 行动开始事件，触发后，角色行动开始
-function m_Pawn:Ex_TurnStart(p_self)
+function Pawn:Ex_TurnStart(p_self)
 end
 
 -- 行动结束事件，触发后，角色行动结束
-function m_Pawn:Ex_TurnEnd(p_self)
+function Pawn:Ex_TurnEnd(p_self)
 end
 
 -- 移动事件，用于外部调用
 -- 触发后，角色会根据传入参数进行移动
 -- 该事件默认绑定一个匿名函数，以调用Move函数并触发E_OnMove事件
-function m_Pawn:Ex_MoveTo(v3_origin_position, v3_target_position)
+function Pawn:Ex_MoveTo(v3_origin_position, v3_target_position)
 end
 
-return m_Pawn
+return Pawn

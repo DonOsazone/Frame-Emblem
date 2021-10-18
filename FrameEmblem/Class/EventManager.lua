@@ -1,43 +1,48 @@
-EventManager =class('EventManager')
+--- ModuleScript  EventManager
+--- Created by MangXiao
+--- Latest Editted by Gyss
+EventManager = class("EventManager")
 
-local t_events={}
-local b_sleeping=false
-local t_current_event ={}
+local _private = setmetatable({}, {__mode = "k"})
+local FireEvents, SleepCheck
 
-function EventManager:initialize()
-    if (eventManager~=nil)
-     then
-        eventManager=EventManager()--实例命名我按照MiddleClass里写的
+--- @function FireEvents 触发事件队列中的所有事件
+FireEvents = function()
+    local _cursor_event = table.remove(_private[self].t_events, 1)
+    _cursor_event[1]:Fire(table.unpack(_cursor_event[2]))
+    if #(_private[self].t_events) == 0 then
+        _private[self].b_sleeping = true
+        SleepCheck()
+    else
+        FireEvents()
     end
-    
 end
 
-local _SleepCheck =function()
+--- @function SleepCheck 检查事件队列，决定何时唤醒EM执行所有事件
+SleepCheck = function()
     while true do
-        if (t_events~=nil and b_sleeping==true)  then
-            EventManager:FireEvents()
-            b_sleeping=false
+        if (#(_private[self].t_events) ~= 0 and _private[self].b_sleeping) then
+            FireEvents()
+            _private[self].b_sleeping = false
             break
         end
+        wait()
     end
 end
 
-
-function EventManager:AddEvent(E_NewEvent)
-    table.insert(t_events,E_NewEvent)
+--- @function AddEvent 添加事件，向事件队列中添加事件和参数表，添加的事件会顺序执行
+--- @param E_NewEvent EventInstance 事件实例
+--- @param t_args table 该事件的参数表，默认为{}
+function EventManager:AddEvent(E_NewEvent, t_args)
+    t_args = t_args or {}
+    table.insert(_private[self].t_events, {E_NewEvent, t_args})
 end
 
-local FireEvents=function ()
-  if (t_event~=nil) then
-    t_current_event = table.unpack(t_events,1,1)
-    print(t_current_event)
-    table.remove(t_events,1)
-    FireEvents()
-    else
-        b_sleeping=true
-        _SleepCheck()
-  end
-
+--- @function 构造函数
+function EventManager:initialize()
+    _private[self].t_events = {}
+    _private[self].b_sleeping = false
+    SleepCheck()
 end
 
-
+return EventManager
