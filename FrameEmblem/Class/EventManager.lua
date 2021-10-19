@@ -40,8 +40,10 @@ end
 
 --- @function 构造函数
 function EventManager:initialize()
-    _private[self].t_events = {}
-    _private[self].b_sleeping = false
+    _private[self] = {
+        t_events = {},
+        b_sleeping = false
+    }
     SleepCheck()
 end
 

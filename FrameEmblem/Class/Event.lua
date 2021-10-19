@@ -52,7 +52,7 @@ end
 --- @function initialize 构造函数
 --- @param Func function 待绑定的函数（可选）
 function Event:initialize(Func)
-    _private[self].t_funcion_table = {}
+    _private[self] = {t_funcion_table = {}}
     if Func == nil then
         return
     end
@@ -92,6 +92,7 @@ end
 --- @function TempConnect 临时绑定，该绑定传入的函数会在指定调用次数后自动解绑
 --- @param Func function 待绑定的函数
 --- @param n_times integer 调用指定次数后自动解绑函数（可选，默认为1）
+--- *临时绑定在制作数回合后自动消失的效果时，可不用再额外维护变量，适用于处理Buff类的自动消散效果*
 function Event:TempConnect(Func, n_times)
     assert(type(Func) == "function", "[ArgumentsTypeError] Func must be a function")
     n_times = n_times or 1
