@@ -8,7 +8,7 @@ local FrameEmblem = {}
 FrameEmblem._Config = require("FrameEmblem/Config")
 
 
----- @function Init
+---- Init
 ---- FrameEmblem初始化函数，解析表格内容、上线GM、EM并初始化网格
 function FrameEmblem.Init()
     _G.Event = require("FrameEmblem/Class/Event")

@@ -2,7 +2,7 @@
 --- Created by Qiao-Ziao
 --- Latest Editted by Gyss
 
-local Pawn = class("Pawn")
+Pawn = class("Pawn")
 
 -- 私有属性表
 local _private = setmetatable({}, {__mode = "k"})
@@ -17,46 +17,16 @@ function Pawn:SetChangeTime(v)
     n_change_time = v
 end
 
---! 构造函数 该函数会创建一个新的Pawn对象，并进行初始化操作
--- @param o_pawn_render o_pawn_render的值将赋值给o_object_reference
--- @return void
-function Pawn:initialize(o_pawn_render)
-    --! 成员变量
-    --! 公有
-    -- @param table 该Pawn具有的所有buff
-    self.t_buffs = {}
-
-    --! 私有
-    _private[self] = {
-        -- @param number Pawn的生命值
-        n_health = 1,
-        -- @param number Pawn的魔法值
-        n_magic = 0,
-        -- @param Vector3 Pawn的位置
-        v3_position = Vector3(0, 0, 0),
-        -- @param Vector3 Pawn的朝向
-        ed_face_toward = EulerDegree(0, 0, 0),
-        -- @param number Pawn的最大移动能力
-        n_max_endurance = 0,
-        -- @param number Pawn的可攻击次数
-        n_attack_times = 0,
-        -- @param object 实例构建时绑定的对象 如果为nil，则绑定在world下的一个cube上
-        o_object_reference = o_pawn_render or world:CreateObject("PrimitiveObject", "Cube", world),
-        -- @param table 该Pawn实例所属的队伍
-        t_team = {}
-    }
-
-    -- 更新对象的v3_position 和 ed_face_toward
-    _private[self].v3_position = _private[self].o_object_reference.Position
-    _private[self].ed_face_toward = _private[self].o_object_reference.Rotation
-end
-
 --! 成员函数
 --! 公有
--- 获取该Pawn的s_property_name对应的值
--- @param s_property_name 字符串类型的属性名
--- @return auto
+--- 获取该Pawn的s_property_name对应的值
+--- @param s_property_name 字符串类型的属性名
+--- @return auto
 function Pawn:Get(s_property_name)
+    local result = _private[self][s_property_name] or self[s_property_name]
+    assert(result, "[Error]未检索到名为'" .. s_property_name .. "'的属性")
+    return result
+    --[[
     if _private[self][s_property_name] then
         return _private[self][s_property_name]
     elseif self[s_property_name] then
@@ -64,12 +34,13 @@ function Pawn:Get(s_property_name)
     else
         assert(false, "[Error]未检索到名为'" .. s_property_name .. "'的属性")
     end
+    ]]
 end
 
--- 修改属性值
--- @param s_property_name 属性名
--- @param a_value 属性值
--- @return void
+--- 修改属性值
+--- @param s_property_name 属性名
+--- @param a_value 属性值
+--- @return void
 function Pawn:Set(s_property_name, a_value)
     if _private[self][s_property_name] then
         --! 处理Position和Rotation的变化 默认 n_change_time 秒动画
@@ -110,21 +81,22 @@ function Pawn:Set(s_property_name, a_value)
     end
 end
 
--- 增加属性值
--- @param s_property_name 属性名
--- @param a_delta 属性值
--- @return void
+--- 对指定属性值进行增加操作
+--- @param s_property_name 属性名
+--- @param a_delta 属性值
+--- @return void
 function Pawn:Increase(s_property_name, a_delta)
     -- 检测类型是否合法，合法后执行赋值
     assert(
         type(self:Get(s_property_name)) == type(a_delta),
-        "[Error]a_delta参数类型(" .. type(a_delta) .. ")错误，应为:(" .. type(self:Get(s_property_name)) .. ")"
+        "[ArgumentsTypeError] The type of a_delta does not match the type of attribute [" ..
+            s_property_name .. "] of instance [" .. self.class.name .. "]"
     )
     self:Set(s_property_name, self:Get(s_property_name) + a_delta)
 end
 
--- 克隆函数 会基于自身，复制出一个属性完全一致的Pawn实例并返回
--- @return Pawn
+--- 克隆函数 会基于自身，复制出一个属性完全一致的Pawn实例并返回
+--- @return Pawn
 function Pawn:CloneSelf()
     local return_obj = Pawn:new(self:Get("o_object_reference"):Clone(self:Get("o_object_reference").Parent))
     return_obj:Set("t_buffs", self:Get("t_buffs"))
@@ -235,6 +207,38 @@ end
 -- 触发后，角色会根据传入参数进行移动
 -- 该事件默认绑定一个匿名函数，以调用Move函数并触发E_OnMove事件
 function Pawn:Ex_MoveTo(v3_origin_position, v3_target_position)
+end
+
+---! 构造函数 该函数会创建一个新的Pawn对象，并进行初始化操作
+--- @param o_pawn_render Object o_pawn_render的值将赋值给o_object_reference
+--- @return void
+function Pawn:initialize(o_pawn_render)
+    o_pawn_render = o_pawn_render or world:CreateObject("PrimitiveObject", "Cube", world)
+
+    --! 成员变量
+    --! 公有
+    --- @param t_buffs table 该Pawn具有的所有buff
+    self.t_buffs = {}
+
+    --! 私有
+    _private[self] = {
+        --- @param n_health number Pawn的生命值
+        n_health = 1,
+        --- @param n_magic number Pawn的魔法值
+        n_magic = 0,
+        --- @param v3_position Vector3 Pawn在世界中的位置
+        v3_position = o_pawn_render.Position,
+        --- @param ed_face_toward EulerDegree Pawn的朝向
+        ed_face_toward = o_pawn_render.Rotation,
+        --- @param n_max_endurance number Pawn的最大移动能力
+        n_max_endurance = 0,
+        --- @param n_attack number Pawn的可攻击次数
+        n_attack_times = 0,
+        --- @param o_object_reference Object 实例构建时绑定的对象 如果为nil，则绑定在world下的一个cube上
+        o_object_reference = o_pawn_render,
+        --- @param t_team table 该Pawn实例所属的队伍
+        t_team = {}
+    }
 end
 
 return Pawn
