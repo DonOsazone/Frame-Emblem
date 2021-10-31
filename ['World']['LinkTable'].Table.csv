@@ -1,0 +1,11 @@
+String,String,String,String,String
+坐标点,权重x-1,权重x+1,权重y-1,权重y+1
+点1,nil,0,nil,0
+点2,nil,0,2,0
+点3,nil,1,2,nil
+点4,2,0,nil,0
+点5,2,nil,nil,1
+点6,2,1,2,1
+点7,1,1,1,nil
+点8,1,nil,1,1
+点9,1,nil,1,nil
